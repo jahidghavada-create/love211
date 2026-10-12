@@ -306,8 +306,11 @@ def final():
     if (r := gate(6)):
         return r
     message = os.environ.get("FINAL_MESSAGE", DEFAULT_FINAL_MESSAGE).replace("\\n", "\n")
-    video = video_from_url(os.environ.get("FINAL_VIDEO_URL", ""))
-    return render_template("final.html", message=message, video=video)
+    parsed_video = video_from_url(os.environ.get("FINAL_VIDEO_URL", ""))
+    video = None
+    if parsed_video:
+        video = {"mode": parsed_video[0], "source": parsed_video[1], "mime_type": parsed_video[2]}
+    return render_template("final.html", final_message=message, video=video)
 
 
 @app.get("/editing-show")
