@@ -21,7 +21,7 @@
     <span class="glowing-heart" aria-hidden="true">♥</span>
     <p>And I have one more little thing to ask you…</p>
     <form action="{{ url_for('open_date') }}" method="post" data-transition-submit>
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <button class="button button--primary" type="submit">One More Little Question, Baby <span aria-hidden="true">💌</span></button>
     </form>
   </div>
