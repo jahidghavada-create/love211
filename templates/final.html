@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}One last message for my Qalbi{% endblock %}
+{% block body_class %}scene-date scene-final{% endblock %}
+{% block content %}
+<section class="final-page">
+  <div class="final-moon" aria-hidden="true"><span></span></div>
+  <p class="eyebrow"><span class="eyebrow-line"></span> FROM MY HEART TO YOURS</p>
+  <h1>One Last Message for My Qalbi <span>❤️</span></h1>
+  <article class="final-letter glass-panel">
+    <div class="typing-message" data-typing aria-live="off"></div>
+    <div class="typing-source" data-typing-source hidden>{{ final_message }}</div>
+    <span class="final-heart" aria-label="A heart for Aashi">♥</span>
+  </article>
+  {% if video %}
+  <section class="final-video-section" aria-labelledby="memory-video-title">
+    <div class="section-heading final-video-heading">
+      <div><p class="eyebrow">PRESS PLAY WHEN YOU'RE READY</p><h2 id="memory-video-title">A little surprise for my Qalbi</h2></div>
+      <span aria-hidden="true">✦</span>
+    </div>
+    {% if video.mode == 'embed' %}
+    <div class="video-frame">
+      <iframe class="surprise-embed" src="{{ video.source }}" title="A little surprise for my Qalbi" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+    <p class="video-note">If the host says this video is unavailable, update it with a public link that allows embedding.</p>
+    {% else %}
+    <video class="surprise-video" controls playsinline preload="metadata" data-surprise-video>
+      <source src="{{ video.source }}" type="{{ video.mime_type }}">
+      Your browser doesn't support this video. Try a recent version of your browser.
+    </video>
+    <p class="video-note" data-video-error role="alert" hidden>This video could not be played. Try a direct public MP4 link or upload a compressed MP4.</p>
+    {% endif %}
+    <p class="video-caption">A little surprise for my Qalbi ❤️🎬</p>
+  </section>
+  {% endif %}
+
+  <section class="final-play" aria-label="A few last little buttons">
+    <h2>Before you go…</h2>
+    <div class="final-actions">
+      <button class="button button--soft" type="button" data-final-action="miss">Miss Me Yet? 😂</button>
+      <button class="button button--soft" type="button" data-final-action="jokes">Unlimited Jokes 🙈</button>
+      <button class="button button--soft" type="button" data-final-action="love">Send More Love 💗</button>
+      <button class="button button--soft" type="button" data-final-action="secret">Secret Message 🤫</button>
+    </div>
+    <p class="final-response" data-final-response aria-live="polite"></p>
+    <form action="{{ url_for('replay') }}" method="post" data-transition-submit>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button button--primary" type="submit">Replay Our Surprise 🎁</button>
+    </form>
+    <a class="button button--soft" href="{{ url_for('editing_show') }}" data-transition>Continue to Aashi's Editing Show <span aria-hidden="true">😂🎬</span></a>
+  </section>
+</section>
+{% endblock %}
