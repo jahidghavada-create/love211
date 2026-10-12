@@ -18,7 +18,7 @@
       <p class="handwritten">Love,<br>Your Jahid <span>💗</span></p>
     </div>
     <form class="date-preferences" action="{{ url_for('date_invitation') }}" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="preferences">
       {% set current_plan = submitted_preferences or preferences %}
       <p class="eyebrow">MAKE IT OURS</p>
@@ -55,13 +55,13 @@
       <p>That's okay, Aashi. No pressure, my Booboo Baby. ❤️</p>
     </div>
     <form class="funny-next" action="{{ url_for('open_funny') }}" method="post" data-transition-submit>
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <button class="button button--primary" type="submit">A Little Something to Make You Smile <span aria-hidden="true">😂</span></button>
     </form>
   {% else %}
     <div class="choice-row date-choice-row">
       <form action="{{ url_for('date_invitation') }}" method="post" data-celebrate-form>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="yes">
         <button class="button button--primary button--yes" type="submit">YES, LET'S GO ON A DATE! <span aria-hidden="true">💕</span></button>
       </form>
@@ -73,14 +73,14 @@
       </div>
     </div>
     <form class="honest-answer" action="{{ url_for('date_invitation') }}" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="no">
       <button class="text-button" type="submit">I really mean no</button>
     </form>
   {% endif %}
   {% if answer == 'yes' %}
   <form class="funny-next" action="{{ url_for('open_funny') }}" method="post" data-transition-submit>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
     <button class="button button--primary" type="submit">A Little Something to Make You Smile <span aria-hidden="true">😂</span></button>
   </form>
   {% endif %}
