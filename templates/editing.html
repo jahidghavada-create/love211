@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Aashi's Editing Show{% endblock %}
+{% block body_class %}scene-editing-show{% endblock %}
+{% block content %}
+<section class="editing-show-page">
+  <div class="editing-decor" aria-hidden="true">
+    <span class="editing-star editing-star--one">✦</span>
+    <span class="editing-star editing-star--two">✧</span>
+    <span class="editing-star editing-star--three">✦</span>
+    <span class="editing-rose editing-rose--one">🌹</span>
+    <span class="editing-rose editing-rose--two">🌹</span>
+  </div>
+  <header class="editing-show-heading">
+    <p class="eyebrow"><span class="eyebrow-line"></span> A SPECIAL PREMIERE FOR AASHI</p>
+    <h1>WELCOME TO AASHI'S EDITING SHOW <span>😂🎬</span></h1>
+    <p class="editing-subtitle">Exclusive premiere of Aashiyana's edits, starring Aashiyana herself, sponsored by Jahid's unlimited patience. 🤣❤️</p>
+  </header>
+
+  <article class="editing-story glass-panel">
+    <span class="editing-story-seal" aria-hidden="true">🎬</span>
+    <p class="editing-story-kicker">THE EDITOR ERA, UNCUT</p>
+    <div class="typing-message editing-typing" data-typing aria-live="off"></div>
+    <div class="typing-source" data-typing-source hidden>Okay, my Aashi, my Booboo Baby, my Qalbi! ❤️😂
+
+Welcome to your personal editing studio!
+
+Breaking news: Aashiyana has officially entered her editor era. 🎬🔥
+
+She makes one edit, watches it 47 times, checks the views every 3 minutes, and then says, 'It's not getting enough attention!' 🤣
+
+My baby spends hours choosing the perfect song, the perfect transition, and the perfect effects. Meanwhile, Jahid is sitting here like an unpaid full-time supporter. 😭😂
+
+And when her edit finally looks perfect, she watches it again like she has never seen it before. Aashi, even the video editor needs a holiday now! 💀🤣
+
+But honestly, my Aashi, keep creating, keep improving, and keep doing what makes you happy. Your creativity deserves to shine, and I'll always be cheering for you.
+
+Now go ahead, Miss Famous Editor! Your biggest fan is waiting for the next masterpiece.
+
+P.S. That biggest fan is Jahid, obviously. Who else has this much patience? 😂❤️</div>
+  </article>
+
+  <section class="editing-collection glass-panel" aria-labelledby="editing-collection-title">
+    <p class="eyebrow">THE PREMIERE CONTINUES</p>
+    <h2 id="editing-collection-title">Aashi's Cinematic Universe <span>🌹🎬</span></h2>
+    <a class="button button--primary editing-drive-button" href="{{ drive_collection_url }}" target="_blank" rel="noopener noreferrer">WATCH AASHI'S MASTERPIECES 🍿❤️ <span aria-hidden="true">↗</span></a>
+    <p class="editing-caption">Warning: Excessive cuteness, dangerous transitions, and an editor who refuses to stop replaying her own edits. 😂🔥</p>
+    <p class="editing-permission-note">Google Drive may ask viewers to sign in or request access, depending on the folder's sharing settings.</p>
+  </section>
+
+  <section class="editing-play" aria-labelledby="editing-play-title">
+    <h2 id="editing-play-title">Audience questions, answered by Jahid 😂</h2>
+    <div class="editing-actions">
+      <button class="button button--soft" type="button" data-editing-action="rewatches">Aashi, How Many Times Did You Watch It? 👀</button>
+      <button class="button button--soft" type="button" data-editing-action="skills">Rate My Editing Skills 😎</button>
+      <button class="button button--soft" type="button" data-editing-action="fan">Who Is Your Biggest Fan? 💗</button>
+      <button class="button button--soft" type="button" data-editing-action="quiet">Stop Talking, Jahid! 🙈</button>
+      <button class="button button--soft" type="button" data-editing-action="compliment">Compliment My Edit 💅</button>
+      <button class="button button--soft" type="button" data-editing-action="surprise">One More Surprise 💌</button>
+    </div>
+    <p class="editing-response" data-editing-response aria-live="polite"></p>
+  </section>
+
+  <article class="editing-goodbye glass-panel">
+    <p class="eyebrow">ONE LAST NOTE FOR MY FAVORITE CREATOR</p>
+    <div class="editing-goodbye-message">To my Aashiyana, my Aashi, my Booboo Baby, my Qalbi... ❤️
+
+Keep creating memories, keep making beautiful edits, and keep being yourself. I hope your life is filled with happiness, success, and endless reasons to smile.
+
+And remember, even when your edits reach millions of views, Jahid will still be here asking for attention like a full-time job. 😂
+
+With love, jokes, and unlimited support,
+
+Your Jahid ❤️🌹</div>
+    <span class="editing-goodbye-heart" aria-label="A glowing heart for Aashi">♥</span>
+    <form action="{{ url_for('replay') }}" method="post" data-transition-submit>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button button--primary" type="submit">Replay Our Love Story ❤️</button>
+    </form>
+  </article>
+</section>
+{% endblock %}
