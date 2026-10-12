@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}A date with your Jahid?{% endblock %}
+{% block body_class %}scene-date{% endblock %}
+{% block content %}
+<section class="date-panel glass-panel">
+  <div class="moon" aria-hidden="true"><span></span></div>
+  <p class="eyebrow"><span class="eyebrow-line"></span> JUST YOU AND ME</p>
+  <h1>Okay, my Aashi…<br>one last question! <span>🥹❤️</span></h1>
+  <p class="date-copy">Will you go on a cute little date with me? Just you, me, beautiful memories, lots of smiles, and a moment that belongs to us. <span>🌹✨</span></p>
+  <div class="star-divider" aria-hidden="true"><span>✦</span><span>✧</span><span>♥</span><span>✧</span><span>✦</span></div>
+
+  {% if answer == 'yes' %}
+    <div class="date-success" role="status">
+      <span class="success-heart" aria-hidden="true">♥</span>
+      <h2>YAYYYYY! 🥹❤️</h2>
+      <p>It's a date, my Booboo Baby! 🌹</p>
+      <p>I can't wait to spend that special time with you, Aashi. Let's make a beautiful memory together.</p>
+      <p class="handwritten">Love,<br>Your Jahid <span>💗</span></p>
+    </div>
+    <form class="date-preferences" action="{{ url_for('date_invitation') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="preferences">
+      {% set current_plan = submitted_preferences or preferences %}
+      <p class="eyebrow">MAKE IT OURS</p>
+      <label for="preferred-date">A day that feels right</label>
+      <input id="preferred-date" name="preferred_date" type="date" value="{{ current_plan.preferred_date if current_plan else '' }}" required>
+      <label for="preferred-time">A time that works for you</label>
+      <input id="preferred-time" name="preferred_time" type="time" value="{{ current_plan.preferred_time if current_plan else '' }}" required>
+      <label for="preferred-location">Somewhere you'd love to go</label>
+      <input id="preferred-location" name="preferred_location" type="text" maxlength="120" value="{{ current_plan.preferred_location if current_plan else '' }}" placeholder="A cozy little place">
+      <label for="activity">Our kind of date</label>
+      <select id="activity" name="activity" required>
+        <option value="">Choose a little adventure</option>
+        {% for value, label in [('cafe', 'Café date ☕'), ('dinner', 'Dinner date 🍽️'), ('movie', 'Movie date 🎬'), ('walk', 'Evening walk 🌙'), ('other', 'Let Aashi decide 💗')] %}
+        <option value="{{ value }}" {% if current_plan and current_plan.activity == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label for="other-activity">If you chose something else</label>
+      <input id="other-activity" name="other_activity" type="text" maxlength="80" placeholder="Your idea (optional)">
+      <label for="food-or-drink">A favorite food or drink</label>
+      <input id="food-or-drink" name="food_or_drink" type="text" maxlength="120" value="{{ preferences.food_or_drink if preferences else '' }}" placeholder="Something delicious">
+      <label for="date-message">A note or special request</label>
+      <textarea id="date-message" name="message" rows="3" maxlength="1000" placeholder="Anything you'd like Jahid to know?">{{ current_plan.message if current_plan else '' }}</textarea>
+      <button class="button button--outline" type="submit">Submit our little plan <span aria-hidden="true">♡</span></button>
+    </form>
+    <div class="date-plan-result" data-date-plan-result role="status" aria-live="polite">
+      {% if submitted_preferences %}
+      <p>{{ submitted_preferences.confirmation }}</p>
+      <span>{{ submitted_preferences.activity }} · {{ submitted_preferences.preferred_date }} at {{ submitted_preferences.preferred_time }}</span>
+      {% endif %}
+    </div>
+  {% elif answer == 'no' %}
+    <div class="answer-note date-no-note" role="status">
+      <span class="answer-note__heart" aria-hidden="true">♡</span>
+      <p>That's okay, Aashi. No pressure, my Booboo Baby. ❤️</p>
+    </div>
+    <form class="funny-next" action="{{ url_for('open_funny') }}" method="post" data-transition-submit>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button button--primary" type="submit">A Little Something to Make You Smile <span aria-hidden="true">😂</span></button>
+    </form>
+  {% else %}
+    <div class="choice-row date-choice-row">
+      <form action="{{ url_for('date_invitation') }}" method="post" data-celebrate-form>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="yes">
+        <button class="button button--primary button--yes" type="submit">YES, LET'S GO ON A DATE! <span aria-hidden="true">💕</span></button>
+      </form>
+      <div class="no-choice-column">
+        <div class="dodge-stage" data-dodge-stage>
+          <button class="button button--no" type="button" data-dodge data-messages="Aashi, one more chance? 🥺💗|I'll bring extra smiles! 🙈">NO <span aria-hidden="true">🙈</span></button>
+        </div>
+        <span class="dodge-message" data-dodge-message aria-live="polite"></span>
+      </div>
+    </div>
+    <form class="honest-answer" action="{{ url_for('date_invitation') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="no">
+      <button class="text-button" type="submit">I really mean no</button>
+    </form>
+  {% endif %}
+  {% if answer == 'yes' %}
+  <form class="funny-next" action="{{ url_for('open_funny') }}" method="post" data-transition-submit>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="button button--primary" type="submit">A Little Something to Make You Smile <span aria-hidden="true">😂</span></button>
+  </form>
+  {% endif %}
+  <p class="date-signoff handwritten">under the same little sky, Jahid <span>♥</span></p>
+</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}A secret for Aashi{% endblock %}
+{% block body_class %}scene-login{% endblock %}
+{% block content %}
+<section class="login-layout">
+  <div class="login-art" aria-hidden="true">
+    <span class="orbit orbit--one"></span><span class="orbit orbit--two"></span>
+    <span class="big-heart">♥</span><span class="art-caption">a little place<br>just for us</span>
+  </div>
+  <div class="glass-panel login-panel">
+    <p class="eyebrow"><span class="eyebrow-line"></span> A PRIVATE LITTLE SURPRISE</p>
+    <h1>Someone special<br>is waiting for you <span class="inline-heart">♥</span></h1>
+    <p class="lede">Only my special girl can enter <span aria-hidden="true">💗</span></p>
+    <form class="login-form" action="{{ url_for('login') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="name">Your name</label>
+      <input id="name" name="name" type="text" placeholder="The name I call you" autocomplete="username" required maxlength="80" autofocus>
+      <label for="password">Our little password</label>
+      <input id="password" name="password" type="password" placeholder="A secret between us" autocomplete="current-password" required maxlength="128">
+      <button class="button button--primary button--wide" type="submit">Unlock My Heart <span aria-hidden="true">♥</span></button>
+    </form>
+    <p class="handwritten login-signoff">For my Aashi, always.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Aashi, my beautiful girl{% endblock %}
+{% block body_class %}scene-beauty{% endblock %}
+{% block content %}
+<section class="beauty-page">
+  <div class="beauty-heading">
+    <p class="eyebrow"><span class="eyebrow-line"></span> EVERY WORD, FROM MY HEART</p>
+    <h1>Aashi, my beautiful girl <span>🌹</span></h1>
+    <p class="handwritten">a love letter, just for you</p>
+  </div>
+  <article class="love-letter glass-panel">
+    <div class="letter-monogram" aria-hidden="true">J <span>♥</span> A</div>
+    <p class="letter-greeting">My Dearest Aashiyana, <span>❤️</span></p>
+    <p>You have no idea how special you are to me. Your eyes have a beauty that makes every little moment feel magical. There is something so expressive and captivating about them that I could spend hours just looking into them and still find something new to admire.</p>
+    <p>Your beautiful complexion, your lovely smile, and the little things that make you who you are all add to your charm. But what makes you truly beautiful to me is not just your appearance. It is your personality, your presence, and the happiness you bring into my life.</p>
+    <p>You will always be my Aashi, my Booboo Baby, and my favourite person to make beautiful memories with.</p>
+    <p class="letter-signoff">With all my love,<br><span class="handwritten">Your Jahid <span>❤️</span></span></p>
+  </article>
+
+  <div class="next-note">
+    <span class="glowing-heart" aria-hidden="true">♥</span>
+    <p>And I have one more little thing to ask you…</p>
+    <form action="{{ url_for('open_date') }}" method="post" data-transition-submit>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button button--primary" type="submit">One More Little Question, Baby <span aria-hidden="true">💌</span></button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Aashi's official Jahid nonsense{% endblock %}
+{% block body_class %}scene-funny{% endblock %}
+{% block content %}
+<section class="funny-page">
+  <div class="funny-heading">
+    <p class="eyebrow"><span class="eyebrow-line"></span> AN IMPORTANT RELATIONSHIP UPDATE</p>
+    <h1>A little nonsense, just for you <span>😂</span></h1>
+    <p>Because my Aashi deserves at least one laugh between all these love letters.</p>
+  </div>
+  <div class="joke-board glass-panel">
+    <div class="sticker sticker--one" aria-hidden="true">😂</div>
+    <div class="sticker sticker--two" aria-hidden="true">🌹</div>
+    <span class="joke-kicker">TODAY'S TOTALLY OFFICIAL FINDING</span>
+    <p class="joke-display" data-funny-message aria-live="polite">Aashi, you officially have a lifetime subscription to Jahid's nonsense! 😂❤️</p>
+    <span class="joke-stamp" aria-hidden="true">CERTIFIED<br>BOOBOO APPROVED</span>
+  </div>
+  <div class="funny-actions" aria-label="More playful messages">
+    <button class="button button--primary" type="button" data-funny-action="joke">Tell Me Another Joke 😂</button>
+    <button class="button button--soft" type="button" data-funny-action="roast">Roast My Jahid 🔥</button>
+    <button class="button button--soft" type="button" data-funny-action="love">I Want More Love 💗</button>
+    <button class="button button--soft" type="button" data-funny-action="cute">Stop Being So Cute 🙈</button>
+    <button class="button button--soft" type="button" data-funny-action="surprise">One More Surprise 🎁</button>
+  </div>
+  <p class="funny-response" data-funny-response aria-live="polite"></p>
+  <form class="funny-next" action="{{ url_for('open_final') }}" method="post" data-transition-submit>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="button button--primary" type="submit">Open Your Last Little Love Letter <span aria-hidden="true">💌</span></button>
+  </form>
+</section>
+{% endblock %}

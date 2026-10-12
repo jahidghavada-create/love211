@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}A private video setup{% endblock %}
+{% block body_class %}scene-video-setup{% endblock %}
+{% block content %}
+<section class="video-setup-panel glass-panel">
+  <p class="eyebrow"><span class="eyebrow-line"></span> A PRIVATE LITTLE SETUP</p>
+  <h1>Add your video surprise</h1>
+  <p class="setup-intro">Only this private setup page can change the video shown on Aashi's final page.</p>
+
+  {% if vercel_hosted %}
+  <p class="setup-current">Vercel functions use temporary files, so uploads are disabled here. To show a hosted video, add <code>FINAL_VIDEO_URL</code> in Vercel Project Settings → Environment Variables and redeploy. Use a public HTTPS YouTube, Vimeo, or direct video URL.</p>
+  {% elif not configured %}
+  <p class="setup-warning" role="status">Set VIDEO_SETUP_KEY in the server environment before using video setup.</p>
+  {% elif not unlocked %}
+  <form class="video-setup-form" action="{{ url_for('video_setup') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="unlock">
+    <label for="setup-key">Private setup key</label>
+    <input id="setup-key" name="setup_key" type="password" autocomplete="current-password" maxlength="256" required>
+    <button class="button button--primary" type="submit">Unlock video setup <span aria-hidden="true">🔐</span></button>
+  </form>
+  {% else %}
+  {% if video %}<p class="setup-current" role="status">A video is currently selected. Saving a new upload or link will replace the selected source.</p>{% else %}<p class="setup-current">No video is selected yet.</p>{% endif %}
+  <form class="video-setup-form" action="{{ url_for('video_setup') }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="upload">
+    <label for="video-file">Upload an MP4, M4V, MOV, or WebM (up to 100 MB)</label>
+    <input id="video-file" name="video" type="file" accept="video/mp4,video/webm,video/quicktime,.m4v" required>
+    <button class="button button--primary" type="submit">Upload my video <span aria-hidden="true">🎬</span></button>
+  </form>
+  <div class="setup-divider"><span>OR USE A PUBLIC LINK</span></div>
+  <form class="video-setup-form" action="{{ url_for('video_setup') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="link">
+    <label for="video-url">YouTube, Vimeo, or direct video URL</label>
+    <input id="video-url" name="video_url" type="url" value="{{ current_link }}" maxlength="2048" placeholder="https://..." required>
+    <button class="button button--outline" type="submit">Save video link <span aria-hidden="true">♡</span></button>
+  </form>
+  <p class="setup-help">Use a public HTTPS link with embedding enabled. For uploads, a compressed H.264 MP4 at 720p is usually small enough. The final player won't autoplay.</p>
+  <form action="{{ url_for('video_setup') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="lock">
+    <button class="text-button" type="submit">Lock this setup page</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}
