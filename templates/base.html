@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff7fa">
+  <title>{% block title %}A little love letter{% endblock %} | Jahid &amp; Aashi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Great+Vibes&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="cursor-heart" aria-hidden="true">♥</div>
+  <header class="site-header">
+    <a class="wordmark" href="{{ url_for('index') }}" aria-label="Jahid and Aashi">J <span>♥</span> A</a>
+    {% if session.get('stage', 0) > 0 %}
+    <form action="{{ url_for('logout') }}" method="post">
+      {{ csrf_input() }}
+      <button class="quiet-button" type="submit" aria-label="Lock this love letter">Lock <span aria-hidden="true">↗</span></button>
+    </form>
+    {% endif %}
+  </header>
+  <main class="page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack" role="status" aria-live="polite">
+          {% for category, message in messages %}<p class="flash flash--{{ category }}">{{ message }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">made with all my heart <span aria-hidden="true">♥</span> &nbsp; J + A</footer>
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</body>
+</html>
