@@ -10,8 +10,6 @@ from flask import Flask, abort, flash, redirect, render_template, request, sessi
 from markupsafe import Markup, escape
 from werkzeug.exceptions import HTTPException
 
-import database as db
-
 ROOT = Path(__file__).resolve().parent
 
 # VERCEL ENTRYPOINT: vercel.json points to this file ("src": "app.py"), and Vercel
@@ -183,13 +181,10 @@ def login():
             and name.strip().casefold() == USERNAME
             and hmac.compare_digest(password.encode("utf-8"), PASSWORD.encode("utf-8"))
         )
-        login_id = db.record_login(name, ok)
         if ok:
             session.clear()
             session.permanent = True
             session["stage"] = 1
-            session["login_id"] = login_id
-            session["response_id"] = db.create_response(login_id)
             return redirect(url_for("proposal"))
         flash("That didn't match. Try again, my baby 🥺", "error")
     return render_template("login.html", configured=CONFIGURED)
@@ -210,7 +205,6 @@ def proposal_answer():
     if answer not in {"yes", "no"}:
         abort(400)
     session["proposal_answer"] = answer
-    db.set_answer(session.get("response_id"), "proposal", answer == "yes")
     if answer == "yes":
         session["stage"] = max(session["stage"], 2)
         return redirect(url_for("beauty"))
@@ -236,14 +230,12 @@ def open_date():
 def date_invitation():
     if (r := gate(3)):
         return r
-    response_id = session.get("response_id")
 
     if request.method == "POST":
         action = request.form.get("action")
         if action in {"yes", "no"}:
             session["date_answer"] = action
             session["stage"] = max(session["stage"], 4)
-            db.set_answer(response_id, "date", action == "yes")
             return redirect(url_for("date_invitation"))
 
         if action == "plan" and session.get("date_answer") == "yes":
@@ -268,7 +260,6 @@ def date_invitation():
             except ValueError:
                 flash("Please check the plan details and try again.", "error")
                 return redirect(url_for("date_invitation"))
-            db.save_plan(response_id, v)
             session["plan_saved"] = True
             return redirect(url_for("date_invitation"))
         abort(400)
@@ -327,7 +318,6 @@ def replay():
     for key in ("proposal_answer", "date_answer", "plan_saved"):
         session.pop(key, None)
     session["stage"] = 1
-    session["response_id"] = db.create_response(session.get("login_id"))
     return redirect(url_for("proposal"))
 
 
