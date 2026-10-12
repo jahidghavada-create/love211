@@ -19,7 +19,7 @@
     </div>
     <form class="date-preferences" action="{{ url_for('date_invitation') }}" method="post">
       <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="preferences">
+      <input type="hidden" name="action" value="plan">
       {% set current_plan = submitted_preferences or preferences %}
       <p class="eyebrow">MAKE IT OURS</p>
       <label for="preferred-date">A day that feels right</label>
@@ -38,7 +38,7 @@
       <label for="other-activity">If you chose something else</label>
       <input id="other-activity" name="other_activity" type="text" maxlength="80" placeholder="Your idea (optional)">
       <label for="food-or-drink">A favorite food or drink</label>
-      <input id="food-or-drink" name="food_or_drink" type="text" maxlength="120" value="{{ preferences.food_or_drink if preferences else '' }}" placeholder="Something delicious">
+      <input id="food-or-drink" name="food_or_drink" type="text" maxlength="120" value="{{ current_plan.food_or_drink if current_plan else '' }}" placeholder="Something delicious">
       <label for="date-message">A note or special request</label>
       <textarea id="date-message" name="message" rows="3" maxlength="1000" placeholder="Anything you'd like Jahid to know?">{{ current_plan.message if current_plan else '' }}</textarea>
       <button class="button button--outline" type="submit">Submit our little plan <span aria-hidden="true">♡</span></button>
