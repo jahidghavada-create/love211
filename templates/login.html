@@ -12,7 +12,7 @@
     <h1>Someone special<br>is waiting for you <span class="inline-heart">♥</span></h1>
     <p class="lede">Only my special girl can enter <span aria-hidden="true">💗</span></p>
     <form class="login-form" action="{{ url_for('login') }}" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <label for="name">Your name</label>
       <input id="name" name="name" type="text" placeholder="The name I call you" autocomplete="username" required maxlength="80" autofocus>
       <label for="password">Our little password</label>
