@@ -5,7 +5,7 @@
       "src": "app.py",
       "use": "@vercel/python",
       "config": {
-        "includeFiles": ["database.py", "templates/**", "public/**"]
+        "includeFiles": ["templates/**", "public/**"]
       }
     }
   ],
