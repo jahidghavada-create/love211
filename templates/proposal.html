@@ -15,7 +15,7 @@
       <span class="answer-note__heart" aria-hidden="true">♡</span>
       <p>Thank you for being honest, Aashi. No pressure, Booboo Baby. ❤️</p>
       <form action="{{ url_for('proposal_answer') }}" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
         <input type="hidden" name="answer" value="yes">
         <button class="text-button" type="submit">I changed my mind, Jahid</button>
       </form>
@@ -23,7 +23,7 @@
   {% else %}
     <div class="choice-row">
       <form action="{{ url_for('proposal_answer') }}" method="post" data-celebrate-form>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
         <input type="hidden" name="answer" value="yes">
         <button class="button button--primary button--yes" type="submit">YES, MY JAHiD! <span aria-hidden="true">❤️</span></button>
       </form>
@@ -35,7 +35,7 @@
       </div>
     </div>
     <form class="honest-answer" action="{{ url_for('proposal_answer') }}" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <input type="hidden" name="answer" value="no">
       <button class="text-button" type="submit">I really mean no</button>
     </form>
