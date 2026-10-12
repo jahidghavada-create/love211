@@ -24,7 +24,7 @@
   </div>
   <p class="funny-response" data-funny-response aria-live="polite"></p>
   <form class="funny-next" action="{{ url_for('open_final') }}" method="post" data-transition-submit>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
     <button class="button button--primary" type="submit">Open Your Last Little Love Letter <span aria-hidden="true">💌</span></button>
   </form>
 </section>
