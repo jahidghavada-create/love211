@@ -87,12 +87,12 @@ def security_headers(response):
 
 @app.errorhandler(400)
 def bad_request(_error):
-    return render_template("error.html"), 400
+    return render_template("error.html", error_message="This form could not be verified. Refresh this page and try again."), 400
 
 
 @app.errorhandler(404)
 def not_found(_error):
-    return render_template("error.html"), 404
+    return render_template("error.html", error_message="This address does not match a page. Use the page buttons to continue."), 404
 
 
 @app.errorhandler(Exception)
@@ -170,6 +170,7 @@ def index():
 
 
 @app.route("/login", methods=["GET", "POST"])
+@app.route("/login.html", methods=["GET", "POST"])
 def login():
     if session.get("stage", 0) >= 1:
         return redirect(url_for("index"))
@@ -191,6 +192,7 @@ def login():
 
 
 @app.get("/proposal")
+@app.get("/proposal.html")
 def proposal():
     if (r := gate(1)):
         return r
@@ -212,6 +214,7 @@ def proposal_answer():
 
 
 @app.get("/beauty")
+@app.get("/beauty.html")
 def beauty():
     if (r := gate(2)):
         return r
@@ -227,6 +230,7 @@ def open_date():
 
 
 @app.route("/date", methods=["GET", "POST"])
+@app.route("/date.html", methods=["GET", "POST"])
 def date_invitation():
     if (r := gate(3)):
         return r
@@ -285,6 +289,7 @@ def open_funny():
 
 
 @app.get("/funny")
+@app.get("/funny.html")
 def funny():
     if (r := gate(5)):
         return r
@@ -300,6 +305,7 @@ def open_final():
 
 
 @app.get("/final")
+@app.get("/final.html")
 def final():
     if (r := gate(6)):
         return r
@@ -312,6 +318,8 @@ def final():
 
 
 @app.get("/editing-show")
+@app.get("/editing.html")
+@app.get("/editing_show.html")
 def editing_show():
     if (r := gate(6)):
         return r
