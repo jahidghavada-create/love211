@@ -64,7 +64,10 @@ def csrf_token():
 
 @app.context_processor
 def template_helpers():
-    return {"csrf_input": lambda: Markup(f'<input type="hidden" name="_csrf" value="{csrf_token()}">')}
+    return {
+        "csrf_token": csrf_token,
+        "csrf_input": lambda: Markup(f'<input type="hidden" name="_csrf" value="{csrf_token()}">'),
+    }
 
 
 @app.before_request
