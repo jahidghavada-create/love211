@@ -42,7 +42,7 @@ P.S. That biggest fan is Jahid, obviously. Who else has this much patience? 😂
   <section class="editing-collection glass-panel" aria-labelledby="editing-collection-title">
     <p class="eyebrow">THE PREMIERE CONTINUES</p>
     <h2 id="editing-collection-title">Aashi's Cinematic Universe <span>🌹🎬</span></h2>
-    <a class="button button--primary editing-drive-button" href="{{ drive_collection_url }}" target="_blank" rel="noopener noreferrer">WATCH AASHI'S MASTERPIECES 🍿❤️ <span aria-hidden="true">↗</span></a>
+    <a class="button button--primary editing-drive-button" href="{{ drive_url }}" target="_blank" rel="noopener noreferrer">WATCH AASHI'S MASTERPIECES 🍿❤️ <span aria-hidden="true">↗</span></a>
     <p class="editing-caption">Warning: Excessive cuteness, dangerous transitions, and an editor who refuses to stop replaying her own edits. 😂🔥</p>
     <p class="editing-permission-note">Google Drive may ask viewers to sign in or request access, depending on the folder's sharing settings.</p>
   </section>
@@ -73,7 +73,7 @@ With love, jokes, and unlimited support,
 Your Jahid ❤️🌹</div>
     <span class="editing-goodbye-heart" aria-label="A glowing heart for Aashi">♥</span>
     <form action="{{ url_for('replay') }}" method="post" data-transition-submit>
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <button class="button button--primary" type="submit">Replay Our Love Story ❤️</button>
     </form>
   </article>
