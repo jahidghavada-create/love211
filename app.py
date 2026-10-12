@@ -92,7 +92,8 @@ def bad_request(_error):
 
 @app.errorhandler(404)
 def not_found(_error):
-    return render_template("error.html", error_message="This address does not match a page. Use the page buttons to continue."), 404
+    # Unknown/stale links should return visitors to the app instead of trapping them on a 404 page.
+    return redirect(url_for("index"), code=302)
 
 
 @app.errorhandler(Exception)
