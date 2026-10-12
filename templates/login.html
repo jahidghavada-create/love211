@@ -11,6 +11,9 @@
     <p class="eyebrow"><span class="eyebrow-line"></span> A PRIVATE LITTLE SURPRISE</p>
     <h1>Someone special<br>is waiting for you <span class="inline-heart">♥</span></h1>
     <p class="lede">Only my special girl can enter <span aria-hidden="true">💗</span></p>
+    {% if not configured %}
+    <p class="flash flash--error" role="alert">Login is not configured yet. The site owner must set PROPOSAL_USERNAME, PROPOSAL_PASSWORD, and FLASK_SECRET_KEY in Vercel.</p>
+    {% endif %}
     <form class="login-form" action="{{ url_for('login') }}" method="post">
       <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <label for="name">Your name</label>
