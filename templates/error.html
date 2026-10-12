@@ -1,3 +1,3 @@
 {% extends "base.html" %}
 {% block title %}Page not found{% endblock %}
-{% block content %}<section class="letter-panel glass-panel"><h1>That page wandered off 💗</h1><p>Let's go back and try again.</p><a class="quiet-button" href="{{ url_for('index') }}">Back to the beginning</a></section>{% endblock %}
+{% block content %}<section class="letter-panel glass-panel"><h1>That page wandered off 💗</h1><p>{{ error_message or "Let's go back and try again." }}</p><a class="quiet-button" href="{{ url_for('index') }}">Back to the beginning</a></section>{% endblock %}
