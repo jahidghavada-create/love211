@@ -256,16 +256,23 @@ def date_invitation():
                     other = request.form.get("other_activity", "").strip()
                     if not other or len(other) > 80:
                         raise ValueError
-                    v["activity"] = f"other: {other}"
+                    v["other_activity"] = other
             except ValueError:
                 flash("Please check the plan details and try again.", "error")
                 return redirect(url_for("date_invitation"))
+            v["confirmation"] = "Your little date plan is saved in this session. ❤️"
+            session["preferences"] = v
             session["plan_saved"] = True
             return redirect(url_for("date_invitation"))
         abort(400)
 
+    saved_preferences = session.get("preferences") if session.get("plan_saved") else None
     return render_template(
-        "date.html", answer=session.get("date_answer"), plan_saved=session.get("plan_saved", False)
+        "date.html",
+        answer=session.get("date_answer"),
+        plan_saved=session.get("plan_saved", False),
+        preferences=session.get("preferences"),
+        submitted_preferences=saved_preferences,
     )
 
 
