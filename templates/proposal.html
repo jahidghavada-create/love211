@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}A question from my heart{% endblock %}
+{% block body_class %}scene-proposal{% endblock %}
+{% block content %}
+<section class="letter-panel glass-panel proposal-panel">
+  <p class="eyebrow"><span class="eyebrow-line"></span> FOR THE GIRL WHO HAS MY HEART</p>
+  <div class="seal" aria-hidden="true">♥</div>
+  <h1>Hey, my Aashiyana<span class="inline-heart">… ♥</span></h1>
+  <p class="letter-intro">My Aashi, my Booboo Baby, you are one of the most special people in my life. Today, I have something straight from my heart to ask you.</p>
+  <div class="question-rule"><span>♡</span></div>
+  <h2 class="proposal-question">Aashiyana, will you be mine?<br>Will you be my forever Booboo Baby? <span>💍❤️</span></h2>
+
+  {% if answer == 'no' %}
+    <div class="answer-note" role="status">
+      <span class="answer-note__heart" aria-hidden="true">♡</span>
+      <p>Thank you for being honest, Aashi. No pressure, Booboo Baby. ❤️</p>
+      <form action="{{ url_for('proposal_answer') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="answer" value="yes">
+        <button class="text-button" type="submit">I changed my mind, Jahid</button>
+      </form>
+    </div>
+  {% else %}
+    <div class="choice-row">
+      <form action="{{ url_for('proposal_answer') }}" method="post" data-celebrate-form>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="answer" value="yes">
+        <button class="button button--primary button--yes" type="submit">YES, MY JAHiD! <span aria-hidden="true">❤️</span></button>
+      </form>
+      <div class="no-choice-column">
+        <div class="dodge-stage" data-dodge-stage>
+          <button class="button button--no" type="button" data-dodge data-messages="Hehe, try again, Aashi! 🙈|Are you sure, Booboo Baby? 🥺">NO <span aria-hidden="true">🥺</span></button>
+        </div>
+        <span class="dodge-message" data-dodge-message aria-live="polite"></span>
+      </div>
+    </div>
+    <form class="honest-answer" action="{{ url_for('proposal_answer') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="answer" value="no">
+      <button class="text-button" type="submit">I really mean no</button>
+    </form>
+  {% endif %}
+  <p class="handwritten panel-signoff">all my love, Jahid <span>♥</span></p>
+</section>
+{% endblock %}
