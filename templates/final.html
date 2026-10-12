@@ -43,7 +43,7 @@
     </div>
     <p class="final-response" data-final-response aria-live="polite"></p>
     <form action="{{ url_for('replay') }}" method="post" data-transition-submit>
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <button class="button button--primary" type="submit">Replay Our Surprise 🎁</button>
     </form>
     <a class="button button--soft" href="{{ url_for('editing_show') }}" data-transition>Continue to Aashi's Editing Show <span aria-hidden="true">😂🎬</span></a>
