@@ -72,7 +72,19 @@ With love, jokes, and unlimited support,
 
 Your Jahid ❤️🌹</div>
     <span class="editing-goodbye-heart" aria-label="A glowing heart for Aashi">♥</span>
-    <form action="{{ url_for('replay') }}" method="post" data-transition-submit>
+    <section class="glass-panel" style="padding:1.25rem;margin:1.5rem 0">
+    <p class="eyebrow">A LITTLE NOTE FOR JAHID 💌</p>
+    <h2>Leave a comment about me</h2>
+    <p>Tell me what you think, my Aashi. Your comment will be saved in the private Saved Records page.</p>
+    <form action="{{ url_for('about_comment') }}" method="post">
+      {{ csrf_input() }}
+      <label for="about-jahid-comment">Your comment</label>
+      <textarea id="about-jahid-comment" name="comment" rows="3" maxlength="1000" required placeholder="A little message for Jahid..."></textarea>
+      <button class="button button--primary" type="submit">Save My Comment ❤️</button>
+    </form>
+  </section>
+
+  <form action="{{ url_for('replay') }}" method="post" data-transition-submit>
       <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <button class="button button--primary" type="submit">Replay Our Love Story ❤️</button>
     </form>
