@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff7fa">
-  <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQav60UoOX4WZ3z9TmXKeMN_ELfV3qXyRSoI6FLUP6-LA&amp;s=10">
-  <link rel="apple-touch-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQav60UoOX4WZ3z9TmXKeMN_ELfV3qXyRSoI6FLUP6-LA&amp;s=10">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}A little love letter{% endblock %} | Jahid &amp; Aashi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
