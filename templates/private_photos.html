@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Private Photos{% endblock %}
+{% block content %}
+<section class="letter-panel glass-panel" style="max-width:1000px">
+  <p class="eyebrow"><span class="eyebrow-line"></span> OWNER-ONLY GALLERY</p>
+  <h1>Private Photos <span class="inline-heart">♥</span></h1>
+  {% if not authorized %}
+    <p class="lede">Enter the separate Private Photos password to view or delete saved photos.</p>
+    {% if not configured %}<p class="flash flash--error" role="alert">Set PRIVATE_PHOTOS_PASSWORD in Vercel Environment Variables and redeploy to enable this page.</p>{% endif %}
+    <form class="login-form" method="post" action="{{ url_for('private_photos') }}">
+      {{ csrf_input() }}
+      <label for="private-password">Private Photos password</label>
+      <input id="private-password" name="private_password" type="password" maxlength="200" autocomplete="current-password" required>
+      <button class="button button--primary button--wide" type="submit">Open Private Photos ♡</button>
+    </form>
+  {% else %}
+    <p class="lede">Photos are shown newest first. Delete any photo you no longer want stored.</p>
+    <form method="post" action="{{ url_for('private_photos_lock') }}" style="margin-bottom:1rem">
+      {{ csrf_input() }}<button class="text-button" type="submit">Lock Private Photos</button>
+    </form>
+    {% if load_error %}
+      <p class="flash flash--error" role="alert">The database could not be reached. Check DATABASE_URL in Vercel.</p>
+    {% elif not photos %}
+      <p>No photos have been saved yet.</p>
+    {% else %}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;text-align:left">
+      {% for photo in photos %}
+        <article class="glass-panel" style="padding:.75rem;border-radius:8px">
+          <img src="data:image/jpeg;base64,{{ photo.photo_data }}" alt="Saved photo {{ photo.id }}" loading="lazy" style="display:block;width:100%;border-radius:5px">
+          <p style="font-size:11px;color:var(--muted);overflow-wrap:anywhere">Photo #{{ photo.id }} · {{ photo.created_at }}</p>
+          <form method="post" action="{{ url_for('private_photo_delete', photo_id=photo.id) }}" onsubmit="return confirm('Delete this saved photo permanently?')">
+            {{ csrf_input() }}<button class="button button--primary" type="submit">Delete Photo</button>
+          </form>
+        </article>
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}
