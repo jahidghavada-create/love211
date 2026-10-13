@@ -17,7 +17,11 @@
       <button class="button button--primary button--wide" type="submit">View Saved Records <span aria-hidden="true">♡</span></button>
     </form>
   {% else %}
-    <p class="lede">Newest first · showing up to 500 records · passwords are never stored.</p>
+    <p class="lede">Newest first · showing up to 500 records. Answers, date plans, comments, and button choices are shown when saved successfully. Passwords are never stored.</p>
+    <div class="records-export" style="display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0">
+      <a class="button button--primary" href="{{ url_for('export_records', format_name='csv') }}">Export all records as CSV</a>
+      <a class="button button--secondary" href="{{ url_for('export_records', format_name='json') }}">Export all records as JSON</a>
+    </div>
     <form method="post" action="{{ url_for('records_lock') }}" class="honest-answer">
       {{ csrf_input() }}
       <button class="text-button" type="submit">Lock records</button>
