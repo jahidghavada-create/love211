@@ -466,6 +466,31 @@ def records():
         return render_template("records.html", authorized=True, records=[], configured=bool(RECORDS_ADMIN_PASSWORD), load_error=True), 503
 
 
+
+@app.get("/records/export/<format_name>")
+def export_records(format_name):
+    if session.get("stage", 0) < 1 or not session.get("records_admin"):
+        abort(403)
+    if format_name not in {"csv", "json"}:
+        abort(404)
+    import csv
+    import io
+    import json
+    from flask import Response
+    engine = _database_engine()
+    _db_metadata.create_all(engine, tables=[_records_table])
+    with engine.connect() as connection:
+        rows = connection.execute(select(_records_table).order_by(_records_table.c.id.asc())).mappings().all()
+    data = [{"id": row["id"], "created_at": row["created_at"], "event_type": row["event_type"], "details": json.loads(row["details"])} for row in rows]
+    if format_name == "json":
+        return Response(json.dumps(data, ensure_ascii=False, indent=2), mimetype="application/json", headers={"Content-Disposition": 'attachment; filename="love211-records.json"'})
+    output = io.StringIO(newline="")
+    writer = csv.writer(output)
+    writer.writerow(["id", "created_at", "event_type", "details"])
+    for item in data:
+        writer.writerow([item["id"], item["created_at"], item["event_type"], json.dumps(item["details"], ensure_ascii=False)])
+    return Response(output.getvalue(), mimetype="text/csv; charset=utf-8", headers={"Content-Disposition": 'attachment; filename="love211-records.csv"'})
+
 @app.post("/records/interaction")
 def record_interaction():
     """Save explicit on-page button choices without collecting passwords or keystrokes."""
