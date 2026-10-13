@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
+from sqlalchemy import Column, Integer, MetaData, String, Table, Text, create_engine, select
 from markupsafe import Markup, escape
 from werkzeug.exceptions import HTTPException
 
@@ -33,6 +34,8 @@ USERNAME = os.environ.get("PROPOSAL_USERNAME", "").strip().casefold()
 PASSWORD = os.environ.get("PROPOSAL_PASSWORD", "")
 SECRET = os.environ.get("FLASK_SECRET_KEY", "")
 CONFIGURED = bool(USERNAME and PASSWORD and SECRET)
+RECORDS_ADMIN_PASSWORD = os.environ.get("RECORDS_ADMIN_PASSWORD", "")
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
 on_vercel = os.environ.get("VERCEL") == "1"
 
@@ -51,6 +54,55 @@ app.config.update(
     PERMANENT_SESSION_LIFETIME=8 * 60 * 60,
     MAX_CONTENT_LENGTH=64 * 1024,
 )
+
+
+# ---------- persistent records ----------
+# DATABASE_URL supports PostgreSQL, MySQL, or SQLite URLs. On Vercel, use a hosted
+# database URL; the local SQLite fallback is only suitable for local development.
+_db_engine = None
+_db_metadata = MetaData()
+_records_table = Table(
+    "love211_records",
+    _db_metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("created_at", String(40), nullable=False),
+    Column("event_type", String(40), nullable=False),
+    Column("details", Text, nullable=False),
+)
+
+
+def _database_engine():
+    global _db_engine
+    if _db_engine is None:
+        url = DATABASE_URL
+        if not url:
+            local_path = os.environ.get("DATABASE_PATH", str(ROOT / "instance" / "proposal.sqlite3"))
+            Path(local_path).parent.mkdir(parents=True, exist_ok=True)
+            url = "sqlite:///" + str(Path(local_path).resolve()).replace("\\\\", "/")
+        # Use installed DBAPI drivers explicitly for hosted database URLs.
+        if url.startswith("postgres://"):
+            url = "postgresql+psycopg://" + url[len("postgres://"):]
+        elif url.startswith("postgresql://"):
+            url = "postgresql+psycopg://" + url[len("postgresql://"):]
+        elif url.startswith("mysql://"):
+            url = "mysql+pymysql://" + url[len("mysql://"):]
+        _db_engine = create_engine(url, pool_pre_ping=True, pool_recycle=300)
+    return _db_engine
+
+
+def save_record(event_type, details):
+    """Persist a safe, password-free snapshot of a meaningful site interaction."""
+    from datetime import datetime, timezone
+    import json
+
+    engine = _database_engine()
+    _db_metadata.create_all(engine, tables=[_records_table])
+    with engine.begin() as connection:
+        connection.execute(_records_table.insert().values(
+            created_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            event_type=event_type,
+            details=json.dumps(details, ensure_ascii=False),
+        ))
 
 
 # ---------- security helpers ----------
@@ -187,7 +239,15 @@ def login():
             session.clear()
             session.permanent = True
             session["stage"] = 1
+            try:
+                save_record("login_success", {"username": name.strip()[:80]})
+            except Exception:
+                app.logger.exception("Could not save login record")
             return redirect(url_for("proposal"))
+        try:
+            save_record("login_failed", {"username": name.strip()[:80]})
+        except Exception:
+            app.logger.exception("Could not save failed-login record")
         flash("That didn't match. Try again, my baby 🥺", "error")
     return render_template("login.html", configured=CONFIGURED)
 
@@ -208,6 +268,11 @@ def proposal_answer():
     if answer not in {"yes", "no"}:
         abort(400)
     session["proposal_answer"] = answer
+    try:
+        save_record("proposal_answer", {"answer": answer})
+    except Exception:
+        app.logger.exception("Could not save proposal answer")
+        flash("Your answer was received, but its history could not be saved. Please tell the site owner.", "error")
     if answer == "yes":
         session["stage"] = max(session["stage"], 2)
         return redirect(url_for("beauty"))
@@ -241,6 +306,11 @@ def date_invitation():
         if action in {"yes", "no"}:
             session["date_answer"] = action
             session["stage"] = max(session["stage"], 4)
+            try:
+                save_record("date_answer", {"answer": action})
+            except Exception:
+                app.logger.exception("Could not save date answer")
+                flash("Your answer was received, but its history could not be saved. Please tell the site owner.", "error")
             return redirect(url_for("date_invitation"))
 
         if action == "plan" and session.get("date_answer") == "yes":
@@ -265,7 +335,12 @@ def date_invitation():
             except ValueError:
                 flash("Please check the plan details and try again.", "error")
                 return redirect(url_for("date_invitation"))
-            v["confirmation"] = "Your little date plan is saved in this session. ❤️"
+            v["confirmation"] = "Your little date plan is saved. ❤️"
+            try:
+                save_record("date_plan", {k: value for k, value in v.items() if k != "confirmation"})
+            except Exception:
+                app.logger.exception("Could not save date plan")
+                flash("Your plan is shown below, but the database could not save it. Please tell the site owner.", "error")
             session["preferences"] = v
             session["plan_saved"] = True
             return redirect(url_for("date_invitation"))
@@ -335,6 +410,51 @@ def replay():
         session.pop(key, None)
     session["stage"] = 1
     return redirect(url_for("proposal"))
+
+
+@app.route("/records", methods=["GET", "POST"])
+def records():
+    """Private owner-only records page; regular site login is not sufficient."""
+    if session.get("stage", 0) < 1:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        password = request.form.get("admin_password", "")
+        if not RECORDS_ADMIN_PASSWORD:
+            flash("Records access is not configured. Set RECORDS_ADMIN_PASSWORD in Vercel.", "error")
+        elif hmac.compare_digest(password.encode("utf-8"), RECORDS_ADMIN_PASSWORD.encode("utf-8")):
+            session["records_admin"] = True
+            return redirect(url_for("records"))
+        else:
+            flash("That records password did not match.", "error")
+
+    if not session.get("records_admin"):
+        return render_template("records.html", authorized=False, records=[], configured=bool(RECORDS_ADMIN_PASSWORD))
+
+    import json
+    try:
+        engine = _database_engine()
+        _db_metadata.create_all(engine, tables=[_records_table])
+        with engine.connect() as connection:
+            rows = connection.execute(select(_records_table).order_by(_records_table.c.id.desc()).limit(500)).mappings().all()
+        saved_records = [{
+            "id": row["id"],
+            "created_at": row["created_at"],
+            "event_type": row["event_type"],
+            "details": json.loads(row["details"]),
+        } for row in rows]
+        return render_template("records.html", authorized=True, records=saved_records, configured=bool(RECORDS_ADMIN_PASSWORD))
+    except Exception:
+        app.logger.exception("Could not load saved records")
+        return render_template("records.html", authorized=True, records=[], configured=bool(RECORDS_ADMIN_PASSWORD), load_error=True), 503
+
+
+@app.post("/records/lock")
+def records_lock():
+    if (r := gate(1)):
+        return r
+    session.pop("records_admin", None)
+    return redirect(url_for("records"))
 
 
 @app.post("/logout")
