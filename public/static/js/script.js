@@ -246,6 +246,39 @@
     });
   });
 
+
+  // Persist explicit choices from the funny, final, and editing-show buttons.
+  // Never collect passwords, raw keystrokes, or arbitrary form contents here.
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+  const interactionSelectors = [
+    { selector: '[data-funny-action]', page: 'funny', response: '[data-funny-message]' },
+    { selector: '[data-final-action]', page: 'final', response: '[data-final-response]' },
+    { selector: '[data-editing-action]', page: 'editing', response: '[data-editing-response]' },
+  ];
+  interactionSelectors.forEach(({ selector, page, response }) => {
+    document.querySelectorAll(selector).forEach((button) => {
+      button.addEventListener('click', () => {
+        window.setTimeout(() => {
+          const displayed = document.querySelector(response)?.textContent?.trim() || '';
+          const payload = new URLSearchParams({
+            _csrf: csrfToken,
+            page,
+            action: button.dataset.funnyAction || button.dataset.finalAction || button.dataset.editingAction || '',
+            button_label: button.textContent.trim(),
+            displayed_response: displayed,
+          });
+          fetch('/records/interaction', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: payload.toString(),
+            keepalive: true,
+          }).catch(() => {});
+        }, 0);
+      });
+    });
+  });
+
   const typingSource = document.querySelector('[data-typing-source]');
   const typingTarget = document.querySelector('[data-typing]');
   if (typingSource && typingTarget) {
