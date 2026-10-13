@@ -402,6 +402,23 @@ def editing_show():
     return render_template("editing.html", drive_url=DRIVE_URL)
 
 
+@app.post("/about/comment")
+def about_comment():
+    if (r := gate(6)):
+        return r
+    comment = request.form.get("comment", "").strip()
+    if not comment or len(comment) > 1000:
+        flash("Please enter a comment of up to 1000 characters.", "error")
+        return redirect(url_for("editing_show"))
+    try:
+        save_record("about_jahid_comment", {"comment": comment})
+        flash("Your comment about Jahid has been saved. ❤️", "success")
+    except Exception:
+        app.logger.exception("Could not save comment about Jahid")
+        flash("Your comment was received, but could not be saved to the database.", "error")
+    return redirect(url_for("editing_show"))
+
+
 @app.post("/replay")
 def replay():
     if (r := gate(1)):
@@ -447,6 +464,34 @@ def records():
     except Exception:
         app.logger.exception("Could not load saved records")
         return render_template("records.html", authorized=True, records=[], configured=bool(RECORDS_ADMIN_PASSWORD), load_error=True), 503
+
+
+@app.post("/records/interaction")
+def record_interaction():
+    """Save explicit on-page button choices without collecting passwords or keystrokes."""
+    if session.get("stage", 0) < 1:
+        abort(403)
+    page = request.form.get("page", "")
+    action = request.form.get("action", "")
+    allowed = {
+        "funny": {"joke", "roast", "love", "cute", "surprise"},
+        "final": {"miss", "jokes", "love", "secret"},
+        "editing": {"rewatches", "skills", "fan", "quiet", "compliment", "surprise"},
+    }
+    if page not in allowed or action not in allowed[page]:
+        abort(400)
+    details = {
+        "page": page,
+        "action": action,
+        "button_label": request.form.get("button_label", "")[:120],
+        "displayed_response": request.form.get("displayed_response", "")[:600],
+    }
+    try:
+        save_record(f"{page}_button", details)
+        return {"saved": True}, 200
+    except Exception:
+        app.logger.exception("Could not save button interaction")
+        return {"saved": False}, 503
 
 
 @app.post("/records/lock")
