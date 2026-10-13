@@ -16,6 +16,7 @@
   <header class="site-header">
     <a class="wordmark" href="{{ url_for('index') }}" aria-label="Jahid and Aashi">J <span>♥</span> A</a>
     {% if session.get('stage', 0) > 0 %}
+    <a class="quiet-button" href="{{ url_for('records') }}">Saved records <span aria-hidden="true">♡</span></a>
     <form action="{{ url_for('logout') }}" method="post">
       {{ csrf_input() }}
       <button class="quiet-button" type="submit" aria-label="Lock this love letter">Lock <span aria-hidden="true">↗</span></button>
