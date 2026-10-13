@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Saved Records{% endblock %}
+{% block body_class %}scene-records{% endblock %}
+{% block content %}
+<section class="letter-panel glass-panel">
+  <p class="eyebrow"><span class="eyebrow-line"></span> PRIVATE SITE OWNER PAGE</p>
+  <h1>Saved Records <span class="inline-heart">♥</span></h1>
+  {% if not authorized %}
+    <p class="lede">Enter the separate records password to view saved activity. The regular website login alone is not enough.</p>
+    {% if not configured %}
+      <p class="flash flash--error" role="alert">Records access is not configured. Add RECORDS_ADMIN_PASSWORD in Vercel Environment Variables, then redeploy.</p>
+    {% endif %}
+    <form class="login-form" method="post" action="{{ url_for('records') }}">
+      {{ csrf_input() }}
+      <label for="admin-password">Private records password</label>
+      <input id="admin-password" name="admin_password" type="password" autocomplete="current-password" maxlength="200" required>
+      <button class="button button--primary button--wide" type="submit">View Saved Records <span aria-hidden="true">♡</span></button>
+    </form>
+  {% else %}
+    <p class="lede">Newest first · showing up to 500 records · passwords are never stored.</p>
+    <form method="post" action="{{ url_for('records_lock') }}" class="honest-answer">
+      {{ csrf_input() }}
+      <button class="text-button" type="submit">Lock records</button>
+    </form>
+    {% if load_error %}
+      <p class="flash flash--error" role="alert">The database could not be reached. Check DATABASE_URL configuration and deployment logs.</p>
+    {% elif not records %}
+      <p>No records have been saved yet. New logins, proposal answers, date answers, and date plans will appear here.</p>
+    {% else %}
+      <div class="records-list">
+        {% for record in records %}
+          <article class="glass-panel" style="padding:1rem;margin:1rem 0;overflow-wrap:anywhere">
+            <p class="eyebrow">#{{ record.id }} · {{ record.event_type|replace('_', ' ')|title }}</p>
+            <p><strong>Time:</strong> <time>{{ record.created_at }}</time></p>
+            <dl>
+              {% for key, value in record.details.items() %}
+                <dt><strong>{{ key|replace('_', ' ')|title }}:</strong></dt>
+                <dd>{{ value if value is not none and value != '' else '—' }}</dd>
+              {% endfor %}
+            </dl>
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+  <p class="date-signoff handwritten">kept with care, Jahid <span>♥</span></p>
+</section>
+{% endblock %}
