@@ -35,6 +35,7 @@ PASSWORD = os.environ.get("PROPOSAL_PASSWORD", "")
 SECRET = os.environ.get("FLASK_SECRET_KEY", "")
 CONFIGURED = bool(USERNAME and PASSWORD and SECRET)
 RECORDS_ADMIN_PASSWORD = os.environ.get("RECORDS_ADMIN_PASSWORD", "")
+PRIVATE_PHOTOS_PASSWORD = os.environ.get("PRIVATE_PHOTOS_PASSWORD", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
 on_vercel = os.environ.get("VERCEL") == "1"
@@ -52,7 +53,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE") == "1"
     or (on_vercel and os.environ.get("VERCEL_ENV") in {"preview", "production"}),
     PERMANENT_SESSION_LIFETIME=8 * 60 * 60,
-    MAX_CONTENT_LENGTH=64 * 1024,
+    MAX_CONTENT_LENGTH=512 * 1024,
 )
 
 
@@ -69,6 +70,15 @@ _records_table = Table(
     Column("event_type", String(40), nullable=False),
     Column("details", Text, nullable=False),
 )
+
+_private_photos_table = Table(
+    "love211_private_photos",
+    _db_metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("created_at", String(40), nullable=False),
+    Column("photo_data", Text, nullable=False),
+)
+
 
 
 def _database_engine():
@@ -427,6 +437,95 @@ def replay():
         session.pop(key, None)
     session["stage"] = 1
     return redirect(url_for("proposal"))
+
+
+# ---------- consent-based camera photos ----------
+@app.get("/camera")
+def camera_page():
+    if (r := gate(1)):
+        return r
+    return render_template("camera.html")
+
+
+@app.post("/camera/save")
+def camera_save():
+    if session.get("stage", 0) < 1:
+        abort(403)
+    if request.form.get("consent") != "yes":
+        abort(400)
+    photo = request.form.get("photo", "")
+    if not photo.startswith("data:image/jpeg;base64,") or len(photo) > 400000:
+        abort(400)
+    import base64
+    import binascii
+    from datetime import datetime, timezone
+    encoded = photo.split(",", 1)[1]
+    try:
+        raw = base64.b64decode(encoded, validate=True)
+    except (binascii.Error, ValueError):
+        abort(400)
+    if not raw or len(raw) > 280000 or raw[:3] != bytes([255, 216, 255]):
+        abort(400)
+    try:
+        engine = _database_engine()
+        _db_metadata.create_all(engine, tables=[_private_photos_table])
+        with engine.begin() as connection:
+            result = connection.execute(_private_photos_table.insert().values(
+                created_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                photo_data=encoded,
+            ))
+            photo_id = result.inserted_primary_key[0]
+        return {"saved": True, "id": photo_id}, 200
+    except Exception:
+        app.logger.exception("Could not save consented camera photo")
+        return {"saved": False, "error": "database"}, 503
+
+
+@app.route("/private-photos", methods=["GET", "POST"])
+def private_photos():
+    if session.get("stage", 0) < 1:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        password = request.form.get("private_password", "")
+        if not PRIVATE_PHOTOS_PASSWORD:
+            flash("Private Photos access is not configured. Set PRIVATE_PHOTOS_PASSWORD in Vercel.", "error")
+        elif hmac.compare_digest(password.encode("utf-8"), PRIVATE_PHOTOS_PASSWORD.encode("utf-8")):
+            session["private_photos_admin"] = True
+            return redirect(url_for("private_photos"))
+        else:
+            flash("That Private Photos password did not match.", "error")
+    if not session.get("private_photos_admin"):
+        return render_template("private_photos.html", authorized=False, photos=[], configured=bool(PRIVATE_PHOTOS_PASSWORD))
+    try:
+        engine = _database_engine()
+        _db_metadata.create_all(engine, tables=[_private_photos_table])
+        with engine.connect() as connection:
+            rows = connection.execute(select(_private_photos_table).order_by(_private_photos_table.c.id.desc()).limit(100)).mappings().all()
+        photos = [dict(row) for row in rows]
+        return render_template("private_photos.html", authorized=True, photos=photos, configured=bool(PRIVATE_PHOTOS_PASSWORD))
+    except Exception:
+        app.logger.exception("Could not load private photos")
+        return render_template("private_photos.html", authorized=True, photos=[], configured=bool(PRIVATE_PHOTOS_PASSWORD), load_error=True), 503
+
+
+@app.post("/private-photos/<int:photo_id>/delete")
+def private_photo_delete(photo_id):
+    if session.get("stage", 0) < 1 or not session.get("private_photos_admin"):
+        abort(403)
+    engine = _database_engine()
+    _db_metadata.create_all(engine, tables=[_private_photos_table])
+    with engine.begin() as connection:
+        connection.execute(_private_photos_table.delete().where(_private_photos_table.c.id == photo_id))
+    flash("Photo deleted.", "success")
+    return redirect(url_for("private_photos"))
+
+
+@app.post("/private-photos/lock")
+def private_photos_lock():
+    if (r := gate(1)):
+        return r
+    session.pop("private_photos_admin", None)
+    return redirect(url_for("private_photos"))
 
 
 @app.route("/records", methods=["GET", "POST"])
